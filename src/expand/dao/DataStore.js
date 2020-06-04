@@ -4,10 +4,12 @@ export default class DataStore{
   fetchData(url){
     return new Promise((resolve,reject)=>{
       this.fetchLocalData(url).then((wrapData)=>{
+        console.log(wrapData)
         if(wrapData && DataStore.checkTimestampValid(warpData.timestamp)){
           resolve(warpData);
         }else{
           this.fetchNetData(url).then((data)=>{
+            console.log(data);
             resolve(this._wrapData(data));
           }).catch((error)=>{
             reject(error);
@@ -66,6 +68,7 @@ export default class DataStore{
   fetchNetData(url){
     return new Promise((resolve,reject) => {
       fetch(url).then((response)=>{
+        console.log(url)
         if(response.ok){
           return response.json();
         }
@@ -86,8 +89,8 @@ export default class DataStore{
     targetDate.setTime(timestamp);
     if(currentDate.getMonth() !== targetDate.getMonth()) return false;
     if(currentDate.getDate() !== targetDate.getDate()) return false;
-    if(currentDate.getHours() !== targetDate.getHours()) return false;
-    if(currentDate.getMinutes() !== targetDate.getMinutes()) return false;
+    if(currentDate.getHours() - targetDate.getHours() > 4) return true;
+    //if(currentDate.getMinutes() !== targetDate.getMinutes()) return false;
     return true;
   }
 }

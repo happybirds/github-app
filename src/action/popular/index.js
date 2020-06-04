@@ -5,7 +5,7 @@ export  function onLoadPopularData(storeName,url){
   return dispath =>{
     dispath({type: Types.POPULAR_REFRESH, storeName: storeName});
     let dataStore = new DataStore();
-    dataStore.fetchDate(url) //异步action与数据流
+    dataStore.fetchData(url) //异步action与数据流
     .then(data=>{
       handleData(dispath,storeName,data);
     }).catch(error=>{
