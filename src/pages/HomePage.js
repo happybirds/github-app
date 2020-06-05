@@ -1,18 +1,28 @@
 import React from 'react';
-import {View, Button, Text, StyleSheet,FlatList,RefreshControl} from 'react-native';
+import {
+  View,
+  Button,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
-import {createAppContainer, withOrientation} from 'react-navigation';
+import {createAppContainer} from 'react-navigation';
 import NavigationUtil from '../navigators/NavigationUtil';
 import {connect} from 'react-redux';
 import actions from '../action/index';
+import PopularItem from '../common/PopularItem';
+import Toast from 'react-native-easy-toast';
 
 const URL = 'https://api.github.com/search/repositories?q=';
-const QUERY_STR='&sort=stars';
+const QUERY_STR = '&sort=stars';
 const THEME_COLOR = 'red';
 export default class HomePage extends React.Component {
   constructor(props) {
     super(props);
-    this.tabName = ['Java', 'Android','IOS','React'];
+    this.tabName = ['Java', 'Android', 'IOS', 'React'];
   }
 
   genTab = () => {
@@ -28,7 +38,6 @@ export default class HomePage extends React.Component {
 
     return tabs;
   };
-
 
   render() {
     const TopTabNavigator = createAppContainer(
@@ -53,75 +62,123 @@ export default class HomePage extends React.Component {
   }
 }
 
+const pageSize = 10;
 class PopularTab extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     const {tabLabel} = this.props;
     this.storeName = tabLabel;
-
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.loadData();
   }
-  loadData(){
-    const {onLoadPopularData} = this.props;
+  loadData(loadMore) {
+    const {onRefreshPopular, onLoadMorePopular} = this.props;
+    const store = this._store();
     const url = this.genFetchUrl(this.storeName);
-    onLoadPopularData(this.storeName,url);
+    if (loadMore) {
+      onLoadMorePopular(
+        this.storeName,
+        ++store.pageIndex,
+        pageSize,
+        store.items,
+        (callBack) => {
+          this.refs.toast.show('no more');
+        },
+      );
+    } else {
+      onRefreshPopular(this.storeName, url, pageSize);
+    }
   }
-  genFetchUrl(key){
+
+  _store() {
+    const {popular} = this.props;
+    let store = popular[this.storeName];
+    if (!store) {
+      store = {
+        items: [],
+        isLoading: false,
+        projectModes: [],
+        hideLoadingMore: true,
+      };
+    }
+    return store;
+  }
+  genFetchUrl(key) {
     return URL + key + QUERY_STR;
   }
 
-  renderItem(data){
+  renderItem(data) {
     const item = data.item;
-    console.log(66666666666)
-    return <View style={{marginBottom: 10}}>
-  <Text style={{backgroundColor:'#faa'}}>{JSON.stringify(item)}</Text>
-      </View>
+    return <PopularItem item={item} onSelect={() => {}} />;
+  }
 
+  genIndicator() {
+    return this._store().hideLoadingMore ? null : (
+      <View style={styles.indicatorContainer}>
+        <ActivityIndicator style={styles.indicator} />
+        <Text>Loading</Text>
+      </View>
+    );
   }
   render() {
-    const {popular} = this.props;
-    let store = popular[this.storeName];
-    console.log(store);
-    if(!store){
-      store = {
-        items:[],
-        isLoading: false,
-      }
-    }
-
+    let store = this._store();
     return (
       <View style={styles.container}>
-       <FlatList
-        data = {store.items}
-        renderItem={data=>this.renderItem(data)}
-        keyExtractor={item=>""+item.id}
-        refreshControl={
-          <RefreshControl
-          title={'Loading'}
-          titleColor={THEME_COLOR}
-          colors={[THEME_COLOR]}
-          refreshing={store.isLoading}
-          onRefresh={()=> this.loadData()}
-          tintColor = {THEME_COLOR}
-
-          />
-        }
-       />
-        
+        <FlatList
+          data={store.projectModes}
+          renderItem={(data) => this.renderItem(data)}
+          keyExtractor={(item) => '' + item.id}
+          refreshControl={
+            <RefreshControl
+              title={'Loading'}
+              titleColor={THEME_COLOR}
+              colors={[THEME_COLOR]}
+              refreshing={store.isLoading}
+              onRefresh={() => this.loadData()}
+              tintColor={THEME_COLOR}
+            />
+          }
+          ListFooterComponent={() => this.genIndicator()}
+          onEndReached={() => {
+            console.log('----onEndReached---');
+            setTimeout(() => {
+              if (this.canLoadMore) {
+                this.loadData(true);
+                this.canLoadMore = false;
+              }
+            }, 100);
+          }}
+          onEndReachedThreshold={0.5}
+          onMomentumScrollBegin={() => {
+            this.canLoadMore = true;
+            console.log('----onMomentumScrollBegin-------');
+          }}
+        />
+        <Toast ref={'toast'} position={'center'} />
       </View>
     );
   }
 }
-const mapStateToProps = state =>({
-  popular: state.popular
-})
-const mapDispatchToProps = dispatch =>({
-  onLoadPopularData: (storeName,url)=>dispatch(actions.onLoadPopularData(storeName,url))
-})
-const PopularTabPage = connect(mapStateToProps,mapDispatchToProps)(PopularTab)
+const mapStateToProps = (state) => ({
+  popular: state.popular,
+});
+const mapDispatchToProps = (dispatch) => ({
+  onRefreshPopular: (storeName, url, pageSize) =>
+    dispatch(actions.onRefreshPopular(storeName, url, pageSize)),
+  onLoadMorePopular: (storeName, pageIndex, pageSize, items, callBack) =>
+    dispatch(
+      actions.onLoadMorePopular(
+        storeName,
+        pageIndex,
+        pageSize,
+        items,
+        callBack,
+      ),
+    ),
+});
+const PopularTabPage = connect(mapStateToProps, mapDispatchToProps)(PopularTab);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -139,8 +196,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   labelStyle: {
-    fontSize: 20,
+    fontSize: 13,
     marginTop: 6,
     marginBottom: 6,
+  },
+  indicatorContainer: {
+    alignItems: 'center',
+  },
+  indicator: {
+    color: 'red',
+    margin: 10,
   },
 });
