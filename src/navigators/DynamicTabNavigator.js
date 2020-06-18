@@ -2,11 +2,11 @@ import React from 'react';
 import {createBottomTabNavigator, BottomTabBar} from 'react-navigation-tabs';
 import {createAppContainer} from 'react-navigation';
 import MyPage from '../pages/MyPage';
-import SearchPage from '../pages/SearchPage';
+import FavoritePage from '../pages/FavoritePage';
 import HomePage from '../pages/HomePage';
-import OrderPage from '../pages/OrderPage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Feather from 'react-native-vector-icons/Feather';
 import {connect} from 'react-redux';
 
 const TABS = {
@@ -15,29 +15,29 @@ const TABS = {
     navigationOptions: {
       tabBarLabel: 'Home',
       tabBarIcon: ({tintColor, focused}) => (
-        <MaterialIcons name={'home'} size={26} style={{color: tintColor}} />
+        <Feather
+        name={'github'}
+        size={26}
+        style={{color: tintColor}}
+    />
       ),
     },
   },
 
-  SearchPage: {
-    screen: SearchPage,
+  FavoritePage: {
+    screen: FavoritePage,
     navigationOptions: {
-      tabBarLabel: 'Search',
-      tabBarIcon: ({tintColor, focused}) => (
-        <FontAwesome name={'search'} size={26} style={{color: tintColor}} />
-      ),
-    },
-  },
-  OrderPage: {
-    screen: OrderPage,
-    navigationOptions: {
-      tabBarLabel: 'Order',
-      tabBarIcon: ({tintColor, focused}) => (
-        <FontAwesome name={'reorder'} size={26} style={{color: tintColor}} />
-      ),
-    },
-  },
+        tabBarLabel: "Favorite",
+        tabBarIcon: ({tintColor, focused}) => (
+            <MaterialIcons
+                name={'favorite-border'}
+                size={26}
+                style={{color: tintColor}}
+            />
+        ),
+    }
+}
+,
 
   MyPage: {
     screen: MyPage,
@@ -55,8 +55,8 @@ const TABS = {
     if(this.Tabs){
       return this.Tabs;
     }
-    const {HomePage, SearchPage, OrderPage, MyPage} = TABS;
-    const tabs = {HomePage, SearchPage, OrderPage, MyPage};
+    const {HomePage, FavoritePage, MyPage} = TABS;
+    const tabs = {HomePage, FavoritePage, MyPage};
     return this.Tabs = createAppContainer(
       createBottomTabNavigator(tabs, {
         tabBarComponent: props=>{

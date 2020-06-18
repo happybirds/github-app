@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Button, Text, StyleSheet} from 'react-native';
 
-export default class OrderPage extends React.Component {
+export default class FavoritePage extends React.Component {
 
 
   render() {

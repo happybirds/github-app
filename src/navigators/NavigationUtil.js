@@ -17,4 +17,9 @@ export default class NavigationUtil {
     )
 }
 
+static goBack(navigation) {
+  navigation.goBack();
+}
+
+
 }

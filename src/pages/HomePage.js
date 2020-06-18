@@ -182,7 +182,6 @@ const PopularTabPage = connect(mapStateToProps, mapDispatchToProps)(PopularTab);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
   },
   welcome: {
     fontSize: 20,
