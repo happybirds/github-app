@@ -9,6 +9,7 @@ import {
 import {PropTypes} from 'prop-types';
 
 export default class SafeAreaViewPlus extends Component {
+    //check props
   static propTypes = {
     ...ViewPropTypes,
     topColor: PropTypes.string,
@@ -25,6 +26,7 @@ export default class SafeAreaViewPlus extends Component {
     bottomInset: false,
   };
 
+  //ios
   genSafeAreaViewPlus() {
     const {children, topColor, bottomColor, topInset, bottomInset} = this.props;
     return (

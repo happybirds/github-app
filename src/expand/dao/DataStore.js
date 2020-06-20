@@ -1,5 +1,5 @@
 import {AsyncStorage} from 'react-native';
-
+export const FLAG_STORAGE = {flag_popular: 'popular'};
 export default class DataStore{
   fetchData(url){
     return new Promise((resolve,reject)=>{
@@ -24,12 +24,8 @@ export default class DataStore{
       })
     })
   }
-  /**
-   * save Data
-   * @param {*} url 
-   * @param {*} data 
-   * @param {*} callback 
-   */
+
+  
   saveData(url,data,callback){
     if(!data || !url ) return;
     AsyncStorage.setItem(url, JSON.stringify(this._wrapData(data)),callback)
@@ -39,10 +35,7 @@ export default class DataStore{
     return {data: data, timestamp: new Date().getTime()};
   }
 
-  /**
-   * fetch local data
-   * @param {*} url 
-   */
+//local data
   fetchLocalData(url){
     return new Promise(( resolve, reject) =>{
       AsyncStorage.getItem(url,(error,result)=>{
@@ -61,10 +54,7 @@ export default class DataStore{
     })
   }
 
-  /**
-   * fetch net data
-   * @param {} url 
-   */
+// net data
   fetchNetData(url){
     return new Promise((resolve,reject) => {
       fetch(url).then((response)=>{
@@ -72,7 +62,7 @@ export default class DataStore{
         if(response.ok){
           return response.json();
         }
-        throw new Error('Network response was not ok.')
+        throw new Error('The network has a problem.')
       }).then((responseData)=>{
         this.saveData(url,responseData);
         resolve(responseData);
@@ -82,7 +72,7 @@ export default class DataStore{
     })
   }
 
-
+//get local or net data 
   static checkTimestampValid(timestamp){
     const currentDate = new Date();
     const targetDate = new Date();
