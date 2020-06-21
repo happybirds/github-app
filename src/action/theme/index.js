@@ -1,5 +1,21 @@
-import Types from '../types';
+import Types from '../types'
+import ThemeDao from "../../expand/dao/ThemeDao";
 
-export  function onThemeChange(theme){
-  return {type: Types.THEME_CHANGE,theme: theme}
+
+// change theme
+export function onThemeChange(theme) {
+    return {type: Types.THEME_CHANGE, theme: theme}
+}
+
+//init
+export function onThemeInit() {
+    return dispatch => {
+        new ThemeDao().getTheme().then((data) => {
+            dispatch(onThemeChange(data))
+        })
+    }
+}
+
+export function onShowCustomThemeView(show) {
+    return {type: Types.SHOW_THEME_VIEW, customThemeViewVisible: show};
 }
