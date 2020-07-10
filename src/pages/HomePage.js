@@ -15,6 +15,8 @@ import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
 import NavigationUtil from '../navigators/NavigationUtil';
 import PopularItem from '../common/PopularItem';
 import Toast from 'react-native-easy-toast';
+import NavigationBar from '../common/NavigationBar';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import FavoriteDao from '../expand/dao/FavoriteDao';
 import {FLAG_STORAGE} from '../expand/dao/DataStore';
 import FavoriteUtil from '../util/FavoriteUtil';
@@ -47,7 +49,37 @@ class HomePage extends React.Component {
     return tabs;
   };
 
+  renderRightButton() {
+    const {theme} = this.props;
+    return <TouchableOpacity
+        onPress={() => {
+          NavigationUtil.goPage({theme}, 'SearchPage')
+        }}
+    >
+        <View style={{padding: 5, marginRight: 8}}>
+            <Ionicons
+                name={'ios-search'}
+                size={24}
+                style={{
+                    marginRight: 8,
+                    alignSelf: 'center',
+                    color: 'white',
+                }}/>
+        </View>
+    </TouchableOpacity>
+}
   render() {
+    const {theme} = this.props;
+    let statusBar = {
+      backgroundColor: theme.themeColor,
+      barStyle: 'light-content',
+  };
+    let navigationBar = <NavigationBar
+    title={''}
+    statusBar={statusBar}
+    style={theme.styles.navBar}
+    rightButton={this.renderRightButton()}
+/>;
     const TopTabNavigator = createAppContainer(
       createMaterialTopTabNavigator(this.genTab(), {
         tabBarOptions: {
@@ -64,6 +96,7 @@ class HomePage extends React.Component {
     );
     return (
       <View style={styles.container}>
+        {navigationBar}
         <TopTabNavigator />
       </View>
     );
